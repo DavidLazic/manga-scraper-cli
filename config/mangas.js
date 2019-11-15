@@ -23,6 +23,10 @@ const MANGA = {
       'Mangairo': {
         src: 'https://mangairo.com',
         id: 1288897895
+      },
+      'Mangakakalot': {
+        src: 'https://mangakakalot.com',
+        id: 'ares'
       }
     }
   }
