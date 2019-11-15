@@ -3,7 +3,6 @@ const MANGA = {
     name: 'Jackals',
     providers: {
       'Mangairo': {
-        src: 'https://mangairo.com',
         id: 1288902540
       }
     }
@@ -12,7 +11,6 @@ const MANGA = {
     name: 'Ragnarok',
     providers: {
       'Mangairo': {
-        src: 'https://mangairo.com',
         id: 1288905796
       }
     }
@@ -21,12 +19,18 @@ const MANGA = {
     name: 'Ares',
     providers: {
       'Mangairo': {
-        src: 'https://mangairo.com',
         id: 1288897895
       },
       'Mangakakalot': {
-        src: 'https://mangakakalot.com',
         id: 'ares'
+      }
+    }
+  },
+  'Claymore': {
+    name: 'Claymore',
+    providers: {
+      'Manganelo': {
+        id: 'ha106878'
       }
     }
   }

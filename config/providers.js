@@ -1,5 +1,6 @@
 const PROVIDERS = {
   'Mangairo': {
+    src: 'https://mangairo.com',
     url: ({ id, src }) => `${src}/series-${id}`,
     chapter: {
       get: document =>
@@ -17,6 +18,7 @@ const PROVIDERS = {
     }
   },
   'Mangakakalot': {
+    src: 'https://mangakakalot.com',
     url: ({ id, src }) => `${src}/manga/${id}`,
     chapter: {
       get: document =>
@@ -34,6 +36,7 @@ const PROVIDERS = {
     }
   },
   'Manganelo': {
+    src: 'https://manganelo.net',
     url: ({ id, src }) => `${src}/manga-${id}`,
     chapter: {
       get: document =>

@@ -1,3 +1,4 @@
+const path = require('path');
 const fetch = require('node-fetch');
 const jsdom = require("jsdom");
 const fs = require('fs').promises;
@@ -43,7 +44,7 @@ const getScraper = (manga, provider) => ({
  * @returns {String}
  */
 const getDir = ({ name, title }) =>
-  `${__dirname}\\${DIR_EXPORT}\\${name}\\${title}`;
+  path.join(__dirname, DIR_EXPORT, name, title);
 
 /**
  * @description
@@ -57,7 +58,7 @@ const getDir = ({ name, title }) =>
  */
 const fetchUrl = async (url, type = 'text', signal) => {
   try {
-    return await fetch(url, { signal }).then(res => res[type] && res[type]());
+    return url && await fetch(url, { signal }).then(res => res[type] && res[type]());
   } catch (err) {
     console.error('[ERR_fetchUrl]: ', err);
   }
@@ -155,16 +156,17 @@ const save = async (manga, iterator) => {
       images.map(async image => {
         const temp = image.url.split('/');
         const fileName = temp[temp.length - 1];
+        const dir = path.join(chapter.dir, fileName);
 
         if (!image.buffer) {
           ERR_BUFFER.push({
-            path: `${chapter.dir}\\${fileName}`,
+            path: dir,
             chapter,
             image
           });
         }
 
-        return await fs.writeFile(`${chapter.dir}\\${fileName}`, image.buffer, 'binary');
+        return await fs.writeFile(dir, image.buffer, 'binary');
       })
     );
 
@@ -220,7 +222,7 @@ const download = async manga => {
 };
 
 
-const SCRAPER = getScraper(MANGA['Ares'], 'Mangairo');
+const SCRAPER = getScraper(MANGA['Test'], 'Manganelo');
 console.log('scraper', SCRAPER);
 
 download(SCRAPER);
