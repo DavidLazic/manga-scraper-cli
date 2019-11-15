@@ -8,19 +8,53 @@ const { JSDOM } = jsdom;
 const PROVIDERS = require('./config/providers');
 const MANGA = require('./config/mangas');
 
+// Default directory name under project root
+const DIR_EXPORT = 'export';
+// Delay for aborting / skipping an image buffer request
 const ERR_DELAY = 30000;
-const ERR_RETRY = [];
+// Container for aborted / skipped image buffers
 const ERR_BUFFER = [];
+// Container for failed retried image buffers
+const ERR_RETRY = [];
 
+/**
+ * @description
+ * Creates scraper by combining manga and provider configs
+ * 
+ * @param {Object} manga 
+ * @param {Object} provider 
+ * 
+ * @returns {Object}
+ */
 const getScraper = (manga, provider) => ({
   name: manga.name,
   ...manga.providers[provider],
   ...PROVIDERS[provider]
 });
 
+/**
+ * @description
+ * Creates file system <PATH>
+ * Images will be saved per manga <DIR_EXPORT>/<MANGA_NAME>/<CHAPTER_TITLE> directory
+ * 
+ * @param {String} name 
+ * @param {String} title 
+ * 
+ * @returns {String}
+ */
 const getDir = ({ name, title }) =>
-  `${__dirname}\\export\\${name}\\${title}`;
+  `${__dirname}\\${DIR_EXPORT}\\${name}\\${title}`;
 
+/**
+ * @description
+ * Fetches <URL> by specified <TYPE> (text|buffer)
+ * 
+ * @param {String} url 
+ * @param {String} type
+ * @param {Object} signal 
+ * 
+ * @returns {String}
+ */
 const fetchUrl = async (url, type = 'text', signal) => {
   try {
     return await fetch(url, { signal }).then(res => res[type] && res[type]());
@@ -29,6 +63,14 @@ const fetchUrl = async (url, type = 'text', signal) => {
   }
 };
 
+/**
+ * @description
+ * Fetches all chapter URLs and parses titles for each chapter.
+ * 
+ * @param {Object} manga 
+ * 
+ * @returns {Array<Object>}
+ */
 const getChapters = async manga => {
   const res = await fetchUrl(manga.url(manga));
   const { document } = (new JSDOM(res)).window;
@@ -47,8 +89,17 @@ const getChapters = async manga => {
   );
 };
 
-const getImages = async (manga, chapter) => {
-  const images = await Promise.all(
+/**
+ * @description
+ * Fetches all chapter images and creates image buffers.
+ * 
+ * @param {Object} manga 
+ * @param {Object} chapter 
+ * 
+ * @returns {Array<Object>}
+ */
+const getImages = async (manga, chapter) =>
+  await Promise.all(
     manga.chapter
       .get(chapter.document)
       .map(async url => {
@@ -64,13 +115,27 @@ const getImages = async (manga, chapter) => {
       })
   );
 
-  return images;
-};
-
+/**
+ * @description
+ * Creates lazy array iterator for throttling HTTP requests.
+ * 
+ * @param {Array} arr
+ * 
+ * @returns {Array<Iterator>}
+ */
 const gen = function* (arr) {
   yield* arr;
 };
 
+/**
+ * @description
+ * Saves all fetched image buffers per <PATH> string
+ * 
+ * @param {Object} manga
+ * @param {Object} iterator
+ * 
+ * @returns {Function}
+ */
 const save = async (manga, iterator) => {
   const { value: chapter, done } = iterator.next();
 
@@ -109,6 +174,15 @@ const save = async (manga, iterator) => {
   }
 }
 
+/**
+ * @description
+ * Retries fetching all failed image buffers from <ERR_BUFFER>
+ * 
+ * @param {Object} manga
+ * @param {Object} iterator
+ * 
+ * @returns {Function}
+ */
 const retry = async (manga, iterator) => {
   const { value, done } = iterator.next();
 
@@ -132,10 +206,19 @@ const retry = async (manga, iterator) => {
   }
 };
 
+/**
+ * @description
+ * Downloads manga by lazy chapter iteration.
+ * 
+ * @param {Object} manga
+ * 
+ * @returns {Function}
+ */
 const download = async manga => {
   const chapters = await getChapters(manga);
   return save(manga, gen(chapters));
 };
+
 
 const SCRAPER = getScraper(MANGA['Ares'], 'Mangairo');
 console.log('scraper', SCRAPER);
