@@ -15,7 +15,7 @@ Install typescript
 $ npm i -g typescript
 ```
 
-## Run
+## Run`
 
 ```js
 $ npm run start
