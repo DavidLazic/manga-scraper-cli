@@ -137,7 +137,7 @@ const getImages = (
  * 
  * @returns {Array<Iterator>}
  */
-const gen = function* (arr: Array<any>): IterableIterator<any> {
+const gen = function* (arr: Array<any>): any {
   yield* arr;
 };
 
@@ -152,7 +152,7 @@ const gen = function* (arr: Array<any>): IterableIterator<any> {
  */
 const save = async (
   scraper: Scraper,
-  iterator: { next() }
+  iterator: { next (): { value: Chapter, done: boolean } }
 ) : Promise<any> => {
   const { value: chapter, done } = iterator.next();
 
@@ -203,8 +203,16 @@ const save = async (
  */
 const retry = async (
   scraper: Scraper,
-  iterator: { next() }
-) : Promise<any> => {
+  iterator: {
+    next (): {
+      value: {
+        path: string,
+        chapter: Chapter,
+        image: Image
+      },
+      done: boolean
+    }
+}) : Promise<any> => {
   const { value, done } = iterator.next();
 
   if (done) {
