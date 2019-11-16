@@ -1,6 +1,12 @@
 {
   "compilerOptions": {
-    "types": ["node"],
+    
+    "types": [
+      "node",
+      "jsdom",
+      "mkdirp-promise",
+      "node-fetch"
+    ],
     "allowJs": true,
     "esModuleInterop": true,
     "outDir": "./dist/",

@@ -73,7 +73,7 @@ const fetchUrl = (
 
 /**
  * @description
- * Fetches all chapter URLs and parses titles for each chapter.
+ * Fetches all chapter URLs.
  * 
  * @param {Object} scraper
  * 
@@ -88,15 +88,29 @@ const getChapters = async (
   return Promise.all(
     scraper.chapter
       .getAll(document)
-      .map(async url => {
-        const chapter = await fetchUrl(url);
-        const { document } = (new JSDOM(chapter)).window;
-        const title = scraper.chapter.title(document);
-        const dir = getDir({ ...scraper, title });
-
-        return { title, dir, url, document };
-      })
+      .map(async url => ({ url }))
   );
+};
+
+/**
+ * @description
+ * Fetches current chapter URL and creates <Chapter>.
+ * 
+ * @param {Object} scraper
+ * @param {String} url
+ * 
+ * @returns {Promise} 
+ */
+const getChapter = async (
+  scraper: Scraper,
+  { url } : { url: string }
+) : Promise<Chapter> => {
+  const chapter = await fetchUrl(url);
+  const { document } = (new JSDOM(chapter)).window;
+  const title = scraper.chapter.title(document);
+  const dir = getDir({ ...scraper, title });
+
+  return { title, dir, url, document };
 };
 
 /**
@@ -151,15 +165,21 @@ const gen = function* (arr: Array<any>): any {
  */
 const save = async (
   scraper: Scraper,
-  iterator: { next (): { value: Chapter, done: boolean } }
+  iterator: {
+    next (): {
+      value: { url: string },
+      done: boolean
+    }
+  }
 ) : Promise<any> => {
-  const { value: chapter, done } = iterator.next();
+  const { value, done } = iterator.next();
 
   if (done) {
     console.log(`[ERR_BUFFER]: ${ERR_BUFFER.length} items: `, ERR_BUFFER);
     return ERR_BUFFER.length && retry(scraper, gen(ERR_BUFFER));
   }
 
+  const chapter = await getChapter(scraper, value);
   console.log('[Downloading]: ', { chapter, done });
 
   const images = await getImages(scraper, chapter);
@@ -250,7 +270,7 @@ const download = async (
 };
 
 
-const SCRAPER = getScraper(MANGA['Test'], 'Manganelo');
+const SCRAPER = getScraper(MANGA['One-Punch'], 'One-Punch');
 console.log('scraper', SCRAPER);
 
 download(SCRAPER);

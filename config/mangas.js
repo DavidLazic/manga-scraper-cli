@@ -23,6 +23,12 @@ const MANGA = {
     providers: {
       'Manganelo': { id: 'ha106878' }
     }
+  },
+  'One-Punch': {
+    name: 'One-Punch_Man',
+    providers: {
+      'One-Punch': { id: '' }
+    }
   }
 };
 

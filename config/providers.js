@@ -52,7 +52,26 @@ const PROVIDERS = {
       title: document =>
         document.title.split(' | ')[0].replace(/[\s|:|.|?]/g, '_')
     }
-  }
+  },
+  'One-Punch': {
+    src: 'https://one-punchman.com',
+    url: ({ src }) => src,
+    chapter: {
+      get: document =>
+        Array
+          .from(document.querySelectorAll('.entry-content .separator img'))
+          .map(item => item.src)
+      ,
+      getAll: document =>
+        Array
+          .from(document.querySelectorAll('#Chapters_List ul li ul li a'))
+          .map(item => item.href)
+      ,
+      title: document =>
+        document.title.split(' - ')[0].replace(/[\s|:|.|?|,]/g, '_')
+    }
+  },
+  
 };
 
 module.exports = PROVIDERS;
