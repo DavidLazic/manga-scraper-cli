@@ -1,33 +1,37 @@
-const path = require('path');
-const fetch = require('node-fetch');
-const jsdom = require("jsdom");
+import * as path from 'path';
+import fetch from 'node-fetch';
+import jsdom from 'jsdom';
 const fs = require('fs').promises;
-const mkdirp = require('mkdirp-promise');
-const AbortController = require("abort-controller")
-const { JSDOM } = jsdom;
+import mkdirp from 'mkdirp-promise';
+import AbortController from 'abort-controller';
+import { JSDOM } from 'jsdom';
 
-const PROVIDERS = require('./config/providers');
-const MANGA = require('./config/mangas');
+import PROVIDERS = require('./config/providers');
+import MANGA = require('./config/mangas');
+import { Chapter, Scraper, Image, Provider } from './types';
 
 // Default directory name under project root
 const DIR_EXPORT = 'export';
 // Delay for aborting / skipping an image buffer request
 const ERR_DELAY = 30000;
 // Container for aborted / skipped image buffers
-const ERR_BUFFER = [];
+const ERR_BUFFER: Array<object> = [];
 // Container for failed retried image buffers
-const ERR_RETRY = [];
+const ERR_RETRY: Array<object> = [];
 
 /**
  * @description
  * Creates scraper by combining manga and provider configs
  * 
  * @param {Object} manga 
- * @param {Object} provider 
+ * @param {String} provider 
  * 
  * @returns {Object}
  */
-const getScraper = (manga, provider) => ({
+const getScraper = (
+  manga: { name: string | number, providers: object },
+  provider: string
+): Scraper => ({
   name: manga.name,
   ...manga.providers[provider],
   ...PROVIDERS[provider]
@@ -43,7 +47,9 @@ const getScraper = (manga, provider) => ({
  * 
  * @returns {String}
  */
-const getDir = ({ name, title }) =>
+const getDir = (
+  { name, title } : { name: string, title: string }
+): string =>
   path.join(__dirname, DIR_EXPORT, name, title);
 
 /**
@@ -54,36 +60,40 @@ const getDir = ({ name, title }) =>
  * @param {String} type
  * @param {Object} signal 
  * 
- * @returns {String}
+ * @returns {String | Array}
  */
-const fetchUrl = async (url, type = 'text', signal) => {
-  try {
-    return url && await fetch(url, { signal }).then(res => res[type] && res[type]());
-  } catch (err) {
-    console.error('[ERR_fetchUrl]: ', err);
-  }
-};
+const fetchUrl = (
+  url: string,
+  type: string = 'text',
+  signal?: object
+) : string | ArrayBuffer =>
+    url &&
+      fetch(url, { signal })
+        .then(res => res[type] && res[type]())
+        .catch(err => console.error('[ERR_fetchUrl]:', err));
 
 /**
  * @description
  * Fetches all chapter URLs and parses titles for each chapter.
  * 
- * @param {Object} manga 
+ * @param {Object} scraper
  * 
- * @returns {Array<Object>}
+ * @returns {Promise} 
  */
-const getChapters = async manga => {
-  const res = await fetchUrl(manga.url(manga));
+const getChapters = async (
+  scraper: Scraper
+): Promise<Array<object>> => {
+  const res = await fetchUrl(scraper.url(scraper));
   const { document } = (new JSDOM(res)).window;
 
-  return await Promise.all(
-    manga.chapter
+  return Promise.all(
+    scraper.chapter
       .getAll(document)
       .map(async url => {
         const chapter = await fetchUrl(url);
         const { document } = (new JSDOM(chapter)).window;
-        const title = manga.chapter.title(document);
-        const dir = getDir({ ...manga, title });
+        const title = scraper.chapter.title(document);
+        const dir = getDir({ ...scraper, title });
 
         return { title, dir, url, document };
       })
@@ -94,14 +104,17 @@ const getChapters = async manga => {
  * @description
  * Fetches all chapter images and creates image buffers.
  * 
- * @param {Object} manga 
+ * @param {Object} scraper
  * @param {Object} chapter 
  * 
  * @returns {Array<Object>}
  */
-const getImages = async (manga, chapter) =>
-  await Promise.all(
-    manga.chapter
+const getImages = (
+  scraper: Scraper,
+  chapter: Chapter
+) =>
+  Promise.all(
+    scraper.chapter
       .get(chapter.document)
       .map(async url => {
         const controller = new AbortController();
@@ -124,7 +137,7 @@ const getImages = async (manga, chapter) =>
  * 
  * @returns {Array<Iterator>}
  */
-const gen = function* (arr) {
+const gen = function* (arr: Array<any>): IterableIterator<any> {
   yield* arr;
 };
 
@@ -132,22 +145,25 @@ const gen = function* (arr) {
  * @description
  * Saves all fetched image buffers per <PATH> string
  * 
- * @param {Object} manga
+ * @param {Object} scraper
  * @param {Object} iterator
  * 
- * @returns {Function}
+ * @returns {Promise<any>}
  */
-const save = async (manga, iterator) => {
+const save = async (
+  scraper: Scraper,
+  iterator: { next() }
+) : Promise<any> => {
   const { value: chapter, done } = iterator.next();
 
   if (done) {
     console.log(`[ERR_BUFFER]: ${ERR_BUFFER.length} items: `, ERR_BUFFER);
-    return ERR_BUFFER.length && retry(manga, gen(ERR_BUFFER));
+    return ERR_BUFFER.length && retry(scraper, gen(ERR_BUFFER));
   }
 
   console.log('[Downloading]: ', { chapter, done });
 
-  const images = await getImages(manga, chapter);
+  const images = await getImages(scraper, chapter);
 
   try {
     await mkdirp(chapter.dir);
@@ -170,7 +186,7 @@ const save = async (manga, iterator) => {
       })
     );
 
-    return save(manga, iterator);
+    return save(scraper, iterator);
   } catch (err) {
     console.log('ERR_DIR', err)
   }
@@ -180,28 +196,31 @@ const save = async (manga, iterator) => {
  * @description
  * Retries fetching all failed image buffers from <ERR_BUFFER>
  * 
- * @param {Object} manga
+ * @param {Object} scraper
  * @param {Object} iterator
  * 
- * @returns {Function}
+ * @returns {Promise<any>}
  */
-const retry = async (manga, iterator) => {
+const retry = async (
+  scraper: Scraper,
+  iterator: { next() }
+) : Promise<any> => {
   const { value, done } = iterator.next();
 
   if (done) {
     return console.log(`[ERR_RETRY]: ${ERR_RETRY.length} items: `, ERR_RETRY);
   }
 
-  const image = await fetchUrl(value.image.url, 'buffer');
+  const buffer = await fetchUrl(value.image.url, 'buffer');
 
-  if (!image.buffer) {
+  if (!buffer) {
     ERR_RETRY.push(value);
   }
 
   try {
     await mkdirp(value.chapter.dir);
-    await fs.writeFile(`${value.path}`, image.buffer, 'binary');
-    return retry(manga, iterator);
+    await fs.writeFile(`${value.path}`, buffer, 'binary');
+    return retry(scraper, iterator);
 
   } catch (err) {
     console.log('ERR_DIR', err)
@@ -212,13 +231,15 @@ const retry = async (manga, iterator) => {
  * @description
  * Downloads manga by lazy chapter iteration.
  * 
- * @param {Object} manga
+ * @param {Object} scraper
  * 
- * @returns {Function}
+ * @returns {Promise<any>}
  */
-const download = async manga => {
-  const chapters = await getChapters(manga);
-  return save(manga, gen(chapters));
+const download = async (
+  scraper: Scraper
+) : Promise<any> => {
+  const chapters = await getChapters(scraper);
+  return save(scraper, gen(chapters));
 };
 
 

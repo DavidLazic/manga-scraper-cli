@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "types": ["node"],
+    "allowJs": true,
+    "outDir": "./dist/",
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
