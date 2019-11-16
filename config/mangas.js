@@ -23,12 +23,6 @@ const MANGA = {
     providers: {
       'Manganelo': { id: 'ha106878' }
     }
-  },
-  'Test': {
-    name: 'Test',
-    providers: {
-      'Manganelo': { id: 'fe130182' }
-    }
   }
 };
 

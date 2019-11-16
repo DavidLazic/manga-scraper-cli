@@ -21,9 +21,3 @@ export interface Image {
   url: string,
   buffer: ArrayBuffer
 }
-
-export interface Provider {
-  [prop: string]: {
-    id: number | string
-  }
-}

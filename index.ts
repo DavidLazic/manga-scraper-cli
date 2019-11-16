@@ -1,6 +1,5 @@
 import * as path from 'path';
 import fetch from 'node-fetch';
-import jsdom from 'jsdom';
 const fs = require('fs').promises;
 import mkdirp from 'mkdirp-promise';
 import AbortController from 'abort-controller';
@@ -8,7 +7,7 @@ import { JSDOM } from 'jsdom';
 
 import PROVIDERS = require('./config/providers');
 import MANGA = require('./config/mangas');
-import { Chapter, Scraper, Image, Provider } from './types';
+import { Chapter, Scraper, Image } from './types';
 
 // Default directory name under project root
 const DIR_EXPORT = 'export';
@@ -50,7 +49,7 @@ const getScraper = (
 const getDir = (
   { name, title } : { name: string, title: string }
 ): string =>
-  path.join(__dirname, DIR_EXPORT, name, title);
+  path.join(__dirname, '..', DIR_EXPORT, name, title);
 
 /**
  * @description
@@ -65,8 +64,8 @@ const getDir = (
 const fetchUrl = (
   url: string,
   type: string = 'text',
-  signal?: object
-) : string | ArrayBuffer =>
+  signal?: AbortSignal
+) : Promise<any> | boolean =>
     url &&
       fetch(url, { signal })
         .then(res => res[type] && res[type]())
@@ -119,7 +118,7 @@ const getImages = (
       .map(async url => {
         const controller = new AbortController();
         const signal = controller.signal;
-        const timeout = setTimeout(() => controller.abort(), ERR_DELAY);
+        const timeout = setTimeout(controller.abort, ERR_DELAY);
 
         const image = await fetchUrl(url, 'buffer', signal);
 

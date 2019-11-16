@@ -6,7 +6,7 @@
   "scripts": {
     "start": "rimraf dist && npm run build && node ./dist/index.js",
     "build": "tsc -p ./",
-    "test": "rimraf dist && npm run build" 
+    "test": "rimraf dist && npm run build"
   },
   "author": "",
   "license": "ISC",
@@ -17,7 +17,10 @@
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {
+    "@types/jsdom": "^12.2.4",
+    "@types/mkdirp-promise": "^5.0.0",
     "@types/node": "^12.12.8",
+    "@types/node-fetch": "^2.5.3",
     "rimraf": "^3.0.0"
   }
 }

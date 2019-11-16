@@ -2,6 +2,7 @@
   "compilerOptions": {
     "types": ["node"],
     "allowJs": true,
+    "esModuleInterop": true,
     "outDir": "./dist/",
   },
   "exclude": [
