@@ -1,4 +1,4 @@
-const MANGA = {
+export const MANGA = {
   'Jackals': {
     name: 'Jackals',
     providers: {
@@ -29,7 +29,11 @@ const MANGA = {
     providers: {
       'One-Punch': { id: '' }
     }
+  },
+  'Test': {
+    name: 'Test',
+    providers: {
+      'Manganelo': { id: 'fe130182' }
+    }
   }
 };
-
-module.exports = MANGA;

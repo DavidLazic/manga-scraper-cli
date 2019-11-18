@@ -1,17 +1,26 @@
 {
   "compilerOptions": {
-    
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@config/*": ["config/*"],
+      "@modules": ["src/modules/index"],
+      "@services": ["src/services/index"],
+      "@lib/*": ["src/lib/*"]
+    },
     "types": [
       "node",
       "jsdom",
       "mkdirp-promise",
       "node-fetch"
     ],
+    "target": "es5",
     "allowJs": true,
     "esModuleInterop": true,
-    "outDir": "./dist/",
+    "outDir": "dist",
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
 }

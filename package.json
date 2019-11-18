@@ -2,9 +2,9 @@
   "name": "test",
   "version": "1.0.0",
   "description": "test",
-  "main": "index.js",
+  "main": "app.ts",
   "scripts": {
-    "start": "rimraf dist && npm run build && node ./dist/index.js",
+    "start": "rimraf dist && npm run build && node ./dist/app.js",
     "build": "tsc -p ./",
     "test": "rimraf dist && npm run build"
   },
@@ -14,6 +14,7 @@
     "abort-controller": "^3.0.0",
     "jsdom": "^15.2.1",
     "mkdirp-promise": "^5.0.1",
+    "module-alias": "^2.2.2",
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {
@@ -22,5 +23,11 @@
     "@types/node": "^12.12.8",
     "@types/node-fetch": "^2.5.3",
     "rimraf": "^3.0.0"
+  },
+  "_moduleAliases": {
+    "@config": "dist/config",
+    "@modules": "dist/src/modules",
+    "@services": "dist/src/services",
+    "@lib": "dist/src/lib"
   }
 }

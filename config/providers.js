@@ -1,4 +1,4 @@
-const PROVIDERS = {
+export const PROVIDERS = {
   'Mangairo': {
     src: 'https://mangairo.com',
     url: ({ id, src }) => `${src}/series-${id}`,
@@ -70,8 +70,5 @@ const PROVIDERS = {
       title: document =>
         document.title.split(' - ')[0].replace(/[\s|:|.|?|,]/g, '_')
     }
-  },
-  
+  }
 };
-
-module.exports = PROVIDERS;
