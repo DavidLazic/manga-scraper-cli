@@ -2,13 +2,10 @@ import { JSDOM } from 'jsdom';
 import mkdirp from 'mkdirp-promise';
 const fs = require('fs').promises;
 import * as path from 'path';
-import AbortController from 'abort-controller';
 
 import { HttpService } from '@services';
-import { _lazy, _partition } from '@lib/helpers';
-
-// Delay for aborting / skipping an image buffer request
-const ERR_DELAY = 30000;
+import { _lazy, _partition, _abortable } from '@lib/helpers';
+import { ROOT } from '@config/root';
 
 export const MChapter: IMChapter = {
 
@@ -18,7 +15,7 @@ export const MChapter: IMChapter = {
    * Images will be saved per manga <OUT_DIR>/<MANGA_NAME>/<CHAPTER_TITLE> directory
    */
   dir: ({ name, outDir }, title) =>
-    path.join(__dirname, '..', outDir, name, title),
+    path.join(ROOT, outDir, name, title),
 
   /**
    * @description
@@ -44,22 +41,6 @@ export const MChapter: IMChapter = {
     return scraper.chapter.getAll(document);
   },
 
-  abortable: async (fn, props) => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    const cancel = setTimeout(controller.abort, ERR_DELAY);
-
-    const buffer = await fn(...props.params, signal);
-
-    return {
-      buffer,
-      clear: () => {
-        console.log('clearing', cancel);
-        clearTimeout(cancel);
-      }
-    };
-  },
-
   /**
    * @description
    * Fetches all chapter images and creates image buffers.
@@ -72,22 +53,20 @@ export const MChapter: IMChapter = {
           const temp = url.split('/');
           const fileName = temp[temp.length - 1];
           const dir = path.join(chapter.dir, fileName);
-          const abortable = await MChapter.abortable(HttpService.fetch, { params: [url, 'buffer'] });
-
-          console.log('aboratble', abortable);
-
-          // const buffer = await HttpService.fetch(url, 'buffer', signal);
+          const abortable = await _abortable(HttpService.fetch, { params: [url, 'buffer'] });
 
           abortable.clear();
 
-          return { buffer: abortable.buffer, url, dir, chapter };
+          return { buffer: abortable.res, url, dir, chapter };
         })
   ),
 
+  /**
+   * @description
+   * Throttles download requests by doing lazy chapter iteration.
+   */
   iterate: async (scraper, iterator, ERR_BUFFER = []) => {
     const { value: url, done } = iterator.next();
-
-    console.log('URL', url);
 
     if (done) {
       return ERR_BUFFER.length
@@ -95,7 +74,7 @@ export const MChapter: IMChapter = {
           console.log(`[Retrying skipped]: ${ERR_BUFFER.length} items: `, ERR_BUFFER),
           MChapter.retry(scraper, _lazy(ERR_BUFFER))
         )
-        : console.log('[Finished]')
+        : console.log('[Done]')
     }
 
     const chapter = await MChapter.get(scraper, url);
@@ -104,11 +83,9 @@ export const MChapter: IMChapter = {
     const images = await MChapter.images(scraper, chapter);
     const { pass, fail } = _partition(images, (image: TImage) => !!image.buffer);
 
-    console.log('images', images, pass, fail);
-
     await MChapter.save(chapter, pass);
 
-    // return MChapter.iterate(scraper, iterator, [ ...ERR_BUFFER, ...fail ] );
+    return MChapter.iterate(scraper, iterator, [ ...ERR_BUFFER, ...fail ] );
   },
 
   /**
@@ -116,17 +93,24 @@ export const MChapter: IMChapter = {
    * Retries fetching all failed image buffers from <scraper.ERR_BUFFER>
    */
   retry: async (scraper, iterator, ERR_RETRY = []) => {
-    // const { value, done } = iterator.next();
+    const { value, done } = iterator.next();
 
-    // if (done) {
-    //   return console.log(`[Failed Downloading]: ${ERR_RETRY.length} items: `, ERR_RETRY);
-    // }
+    if (done) {
+      return ERR_RETRY.length
+        ? console.log(`[Failed Downloading]: ${ERR_RETRY.length} items: `, ERR_RETRY)
+        : console.log('[Done]')
+    }
 
-    // const buffer = await HttpService.fetch(value.image.url, 'buffer');
+    const abortable = await _abortable(HttpService.fetch, { params: [value.url, 'buffer'] });
+    abortable.clear();
 
-    // await MChapter.save(chapter, pass);
+    const image = { ...value, buffer: abortable.res };
 
-    // return MChapter.retry(scraper, iterator);
+    if (abortable.res) {
+      await MChapter.save(value.chapter, [ image ]);
+    }
+
+    return MChapter.retry(scraper, iterator, [ ...ERR_RETRY, ...image ]);
   },
 
   /**

@@ -33,11 +33,6 @@ declare interface IMChapter {
     scraper: IScraper,
     iterator: IterableIterator<object>,
     ERR_RETRY?: TImage[]
-  ): any,
-
-  abortable(
-    fn: any,
-    props: { params: any[] }
   ): any
 }
 

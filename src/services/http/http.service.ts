@@ -7,6 +7,7 @@ export const HttpService: ISHttp = {
    * Fetches <URL> by specified <TYPE> (text|buffer)
    */
   fetch: (url, type = 'text', signal) =>
+    url &&
     fetch(url, { signal })
       .then(res => res[type] && res[type]())
       .catch(err => console.error('[ERR_fetchUrl]:', err))
