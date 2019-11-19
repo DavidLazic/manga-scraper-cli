@@ -50,7 +50,7 @@ export const PROVIDERS = {
           .map(item => item.href)
       ,
       title: document =>
-        document.title.split(' | ')[0].replace(/[\s|:|.|?]/g, '_')
+        document.title.split(' - ')[0].replace(/[\s|:|.|?]/g, '_')
     }
   },
   'One-Punch': {

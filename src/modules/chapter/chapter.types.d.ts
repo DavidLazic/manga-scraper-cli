@@ -22,10 +22,9 @@ declare interface IMChapter {
     chapter: TChapter
   ): Promise<TImage[]>,
 
-  save(
-    chapter: TChapter,
-    images: TImage[]
-  ): Promise<any>
+  downloaded(
+    path: string
+  ): Promise<string[]>,
 
   iterate(
     scraper: IScraper,
@@ -34,21 +33,24 @@ declare interface IMChapter {
   ): any,
 
   retry(
-    scraper: IScraper,
-    iterator: IterableIterator<object>,
-    ERR_RETRY?: TImage[]
-  ): any
+    ERR_BUFFER?: TImage[]
+  ): any,
+
+  save(
+    images: TImage[]
+  ): Promise<any>
 }
 
 declare type TChapter = {
   dir: string,
   url: string,
-  document: object
+  document: object,
+  title: string
 }
 
 declare type TImage = {
   dir: string,
   url: string,
-  buffer: ArrayBuffer | string | undefined,
+  buffer: ArrayBuffer | undefined,
   chapter: TChapter
 }

@@ -12,9 +12,7 @@ export const DownloadService: ISDownload = {
     console.log('SCRAPER', scraper);
     const chapters = await MChapter.getAll(scraper);
 
-    console.log('chapters', chapters);
-
-    // return MChapter.iterate(scraper, _lazy(chapters.slice(0, 3)));
+    return MChapter.iterate(scraper, _lazy(chapters));
   },
 
   /**
@@ -27,6 +25,6 @@ export const DownloadService: ISDownload = {
     console.log('SCRAPER', scraper);
     const chapters = await MChapter.getLatest(scraper);
 
-    // return MChapter.iterate(scraper, _lazy(chapters));
+    return MChapter.iterate(scraper, _lazy(chapters));
   }
 };

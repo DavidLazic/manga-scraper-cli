@@ -13,7 +13,7 @@ export const _abortable = async (
 ) => {
   const controller = new AbortController();
   const signal = controller.signal;
-  const cancel = setTimeout(controller.abort, ERR_DELAY);
+  const cancel = setTimeout(() => controller.abort(), ERR_DELAY);
 
   const res = await fn(...props.params, signal);
 

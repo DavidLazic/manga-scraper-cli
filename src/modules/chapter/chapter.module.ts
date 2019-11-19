@@ -27,7 +27,7 @@ export const MChapter: IMChapter = {
     const title = scraper.chapter.title(document);
     const dir = MChapter.dir(scraper, title);
   
-    return { url, dir, document };
+    return { url, dir, document, title };
   },
 
   /**
@@ -37,29 +37,22 @@ export const MChapter: IMChapter = {
   getAll: async scraper => {
     const res = await HttpService.fetch(scraper.url(scraper));
     const { document } = (new JSDOM(res)).window;
-
-    let sortFn = (a: any , b: any): any => {
-      if(a < b) { return -1; }
-      if(a > b) { return 1; }
-      return 0;
-    };
   
     return scraper.chapter
       .getAll(document)
-      .sort(sortFn);
+      .filter(src => !!src)
+      .reverse();
   },
 
+  /**
+   * @description
+   * Returns array of all non-existent chapter URLs.
+   */
   getLatest: async scraper => {
     const all = await MChapter.getAll(scraper);
+    const downloaded = await MChapter.downloaded(join(ROOT, scraper.outDir, scraper.name));
 
-    const dirs = path =>
-      readdirSync(path)
-        .filter(file =>
-            statSync(join(path, file)).isDirectory())
-
-    console.log('all', all, dirs(join(ROOT, scraper.outDir, scraper.name)));
-
-    return [];
+    return all.slice(downloaded.length);
   },
 
   /**
@@ -74,8 +67,8 @@ export const MChapter: IMChapter = {
           const temp = url.split('/');
           const fileName = temp[temp.length - 1];
           const dir = join(chapter.dir, fileName);
-          const abortable = await _abortable(HttpService.fetch, { params: [url, 'buffer'] });
 
+          const abortable = await _abortable(HttpService.fetch, { params: [url, 'buffer'] });
           abortable.clear();
 
           return { buffer: abortable.res, url, dir, chapter };
@@ -84,16 +77,28 @@ export const MChapter: IMChapter = {
 
   /**
    * @description
+   * Returns array of downloaded chapter directories.
+   */
+  downloaded: async path => {
+    await mkdirp(path);
+
+    return readdirSync(path)
+        .filter(file =>
+            statSync(join(path, file)).isDirectory())
+  },
+
+  /**
+   * @description
    * Throttles download requests by doing lazy chapter iteration.
    */
-  iterate: async (scraper, iterator, current, ERR_BUFFER = []) => {
+  iterate: async (scraper, iterator, ERR_BUFFER = []) => {
     const { value: url, done } = iterator.next();
 
     if (done) {
       return ERR_BUFFER.length
         ? (
           console.log(`[Retrying skipped]: ${ERR_BUFFER.length} items: `, ERR_BUFFER),
-          MChapter.retry(scraper, _lazy(ERR_BUFFER))
+          MChapter.retry(ERR_BUFFER)
         )
         : console.log('[Done]')
     }
@@ -104,34 +109,32 @@ export const MChapter: IMChapter = {
     const images = await MChapter.images(scraper, chapter);
     const { pass, fail } = _partition(images, (image: TImage) => !!image.buffer);
 
-    await MChapter.save(chapter, pass);
+    await MChapter.save(pass);
 
     return MChapter.iterate(scraper, iterator, [ ...ERR_BUFFER, ...fail ] );
   },
 
   /**
    * @description
-   * Retries fetching all failed image buffers from <scraper.ERR_BUFFER>
+   * Retries fetching all failed image buffers from <ERR_BUFFER>
    */
-  retry: async (scraper, iterator, ERR_RETRY = []) => {
-    const { value, done } = iterator.next();
+  retry: async (ERR_BUFFER) => {
+    const images = await Promise.all(
+      ERR_BUFFER.map(async image => {
+        const abortable = await _abortable(HttpService.fetch, { params: [image.url, 'buffer'] });
+        abortable.clear();
 
-    if (done) {
-      return ERR_RETRY.length
-        ? console.log(`[Failed Downloading]: ${ERR_RETRY.length} items: `, ERR_RETRY)
-        : console.log('[Done]')
-    }
+        return { buffer: abortable.res, ...image };
+      })
+    );
 
-    const abortable = await _abortable(HttpService.fetch, { params: [value.url, 'buffer'] });
-    abortable.clear();
+    const { pass, fail } = _partition(images, (image: TImage) => !!image.buffer);
 
-    const image = { ...value, buffer: abortable.res };
+    await MChapter.save(pass);
 
-    if (abortable.res) {
-      await MChapter.save(value.chapter, [ image ]);
-    }
-
-    return MChapter.retry(scraper, iterator, [ ...ERR_RETRY, ...image ]);
+    return fail.length
+      ? console.log(`[Failed Downloading]: ${ERR_BUFFER.length} items: `, ERR_BUFFER)
+      : console.log('[Done]')
   },
 
   /**
@@ -139,18 +142,12 @@ export const MChapter: IMChapter = {
    * Creates chapter directory and
    * saves all fetched image buffers per <PATH> string
    */
-  save: async (chapter, images) => {
-    try {
-      await mkdirp(chapter.dir);
-
-      return await Promise.all(
-        images
-          .map(async image =>
-            await fsp.writeFile(image.dir, image.buffer, 'binary')
-          )
-      );
-    } catch (err) {
-      console.log('[ERR_MChapter.save]: ', err)
-    }
-  }
+  save: async (images) =>
+    await Promise.all(
+      images
+        .map(async image => {
+          await mkdirp(image.chapter.dir);
+          return await fsp.writeFile(image.dir, image.buffer, 'binary');
+        })
+    )
 }
