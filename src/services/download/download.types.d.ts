@@ -1,11 +1,10 @@
 declare interface ISDownload {
-  all(
-    config: {
-      name: string,
-      provider: string,
-      outDir: string
-    }
-  ): any,
+  all(config: TSDownload): any,
+  latest(config: TSDownload): any
+}
 
-  latest?(): any
+declare type TSDownload = {
+  name: string,
+  provider: string,
+  outDir?: string
 }

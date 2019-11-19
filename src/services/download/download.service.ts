@@ -12,10 +12,21 @@ export const DownloadService: ISDownload = {
     console.log('SCRAPER', scraper);
     const chapters = await MChapter.getAll(scraper);
 
-    return MChapter.iterate(scraper, _lazy(chapters));
+    console.log('chapters', chapters);
+
+    // return MChapter.iterate(scraper, _lazy(chapters.slice(0, 3)));
   },
 
-  latest () {
+  /**
+   * @description
+   * Downloads only non-existent manga chapters
+   * in <outDir> directory by lazy chapter iteration.
+   */
+  async latest (config) {
+    const scraper = MScraper.get(config);
+    console.log('SCRAPER', scraper);
+    const chapters = await MChapter.getLatest(scraper);
 
+    // return MChapter.iterate(scraper, _lazy(chapters));
   }
 };

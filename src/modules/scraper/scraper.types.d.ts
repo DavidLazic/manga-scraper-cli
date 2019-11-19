@@ -1,7 +1,5 @@
 declare interface IMScraper {
-  get(
-    { name, provider, outDir }: { name: string, provider: string, outDir?: string }
-  ): IScraper
+  get(config: TSDownload): IScraper
 }
 
 declare interface IScraper {

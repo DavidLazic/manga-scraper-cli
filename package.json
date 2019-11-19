@@ -22,7 +22,8 @@
     "@types/mkdirp-promise": "^5.0.0",
     "@types/node": "^12.12.8",
     "@types/node-fetch": "^2.5.3",
-    "rimraf": "^3.0.0"
+    "rimraf": "^3.0.0",
+    "typescript": "^3.7.2"
   },
   "_moduleAliases": {
     "@config": "dist/config",

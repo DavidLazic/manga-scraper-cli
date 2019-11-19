@@ -1,11 +1,11 @@
 import { JSDOM } from 'jsdom';
 import mkdirp from 'mkdirp-promise';
-const fs = require('fs').promises;
-import * as path from 'path';
+import { promises as fsp, readdirSync, statSync } from 'fs';
+import { join } from 'path';
 
+import { ROOT } from '@config/root';
 import { HttpService } from '@services';
 import { _lazy, _partition, _abortable } from '@lib/helpers';
-import { ROOT } from '@config/root';
 
 export const MChapter: IMChapter = {
 
@@ -15,7 +15,7 @@ export const MChapter: IMChapter = {
    * Images will be saved per manga <OUT_DIR>/<MANGA_NAME>/<CHAPTER_TITLE> directory
    */
   dir: ({ name, outDir }, title) =>
-    path.join(ROOT, outDir, name, title),
+    join(ROOT, outDir, name, title),
 
   /**
    * @description
@@ -37,8 +37,29 @@ export const MChapter: IMChapter = {
   getAll: async scraper => {
     const res = await HttpService.fetch(scraper.url(scraper));
     const { document } = (new JSDOM(res)).window;
+
+    let sortFn = (a: any , b: any): any => {
+      if(a < b) { return -1; }
+      if(a > b) { return 1; }
+      return 0;
+    };
   
-    return scraper.chapter.getAll(document);
+    return scraper.chapter
+      .getAll(document)
+      .sort(sortFn);
+  },
+
+  getLatest: async scraper => {
+    const all = await MChapter.getAll(scraper);
+
+    const dirs = path =>
+      readdirSync(path)
+        .filter(file =>
+            statSync(join(path, file)).isDirectory())
+
+    console.log('all', all, dirs(join(ROOT, scraper.outDir, scraper.name)));
+
+    return [];
   },
 
   /**
@@ -52,7 +73,7 @@ export const MChapter: IMChapter = {
         .map(async (url: string): Promise<TImage> => {
           const temp = url.split('/');
           const fileName = temp[temp.length - 1];
-          const dir = path.join(chapter.dir, fileName);
+          const dir = join(chapter.dir, fileName);
           const abortable = await _abortable(HttpService.fetch, { params: [url, 'buffer'] });
 
           abortable.clear();
@@ -65,7 +86,7 @@ export const MChapter: IMChapter = {
    * @description
    * Throttles download requests by doing lazy chapter iteration.
    */
-  iterate: async (scraper, iterator, ERR_BUFFER = []) => {
+  iterate: async (scraper, iterator, current, ERR_BUFFER = []) => {
     const { value: url, done } = iterator.next();
 
     if (done) {
@@ -125,7 +146,7 @@ export const MChapter: IMChapter = {
       return await Promise.all(
         images
           .map(async image =>
-            await fs.writeFile(image.dir, image.buffer, 'binary')
+            await fsp.writeFile(image.dir, image.buffer, 'binary')
           )
       );
     } catch (err) {

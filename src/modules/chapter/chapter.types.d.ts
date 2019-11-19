@@ -8,6 +8,10 @@ declare interface IMChapter {
     scraper: IScraper
   ): Promise<string[]>,
 
+  getLatest(
+    scraper: IScraper
+  ): Promise<string[]>
+
   dir(
     { name, outDir }: IScraper,
     title: string
