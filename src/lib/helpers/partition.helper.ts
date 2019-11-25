@@ -1,16 +1,16 @@
 /**
  * @description
- * Partitiones images array per fetched image buffer.
+ * Partitiones array per specified filter fn.
  */
 export const _partition = (
-  images: TImage[],
-  filter: (image: TImage) => boolean
-): { pass: TImage[], fail: TImage[] } => {
-  const pass = [];
-  const fail = [];
+  arr: any[],
+  filter: (item: any) => boolean
+): { pass: any[], fail: any[] } => {
+  const pass: any[] = [];
+  const fail: any[] = [];
 
-  images.forEach(image =>
-    (filter(image) ? pass : fail).push(image));
+  arr.forEach(item =>
+    (filter(item) ? pass : fail).push(item));
 
   return { pass, fail };
 };

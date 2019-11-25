@@ -1,27 +1,55 @@
 {
-  "name": "test",
+  "name": "@davidlazic/manga-scraper-cli",
   "version": "1.0.0",
-  "description": "test",
-  "main": "app.ts",
-  "scripts": {
-    "start": "rimraf dist && npm run build && node ./dist/app.js",
-    "build": "tsc -p ./",
-    "test": "rimraf dist && npm run build"
+  "description": "CLI for downloading hosted manga images to local file system",
+  "preferGlobal": true,
+  "main": "dist/app.js",
+  "bin": {
+    "ms": "dist/bin/app.js"
   },
-  "author": "",
+  "scripts": {
+    "start": "npm run build && node ./dist/app.js",
+    "build": "rimraf dist && tsc -p ./ && npm run copy:db",
+    "copy:db": "copyfiles db/* bin/* dist",
+    "test": "npm run build"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "author": "David Lazic",
   "license": "ISC",
+  "engines”": {
+    "node": ">= 12.13.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DavidLazic/manga-scraper-cli"
+  },
+  "keywords": [
+    "scraper",
+    "manga"
+  ],
   "dependencies": {
     "abort-controller": "^3.0.0",
+    "chalk": "^3.0.0",
+    "clear": "^0.1.0",
+    "commander": "^4.0.1",
+    "figlet": "^1.2.4",
+    "inquirer": "^7.0.0",
     "jsdom": "^15.2.1",
     "mkdirp-promise": "^5.0.1",
     "module-alias": "^2.2.2",
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {
+    "@types/clear": "^0.1.0",
+    "@types/figlet": "^1.2.0",
+    "@types/inquirer": "^6.5.0",
     "@types/jsdom": "^12.2.4",
     "@types/mkdirp-promise": "^5.0.0",
     "@types/node": "^12.12.8",
     "@types/node-fetch": "^2.5.3",
+    "copyfiles": "^2.1.1",
     "rimraf": "^3.0.0",
     "typescript": "^3.7.2"
   },
@@ -29,6 +57,7 @@
     "@config": "dist/config",
     "@modules": "dist/src/modules",
     "@services": "dist/src/services",
-    "@lib": "dist/src/lib"
+    "@lib": "dist/src/lib",
+    "@db": "dist/db"
   }
 }

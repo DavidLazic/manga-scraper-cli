@@ -1,0 +1,10 @@
+{
+  "entries": [
+    {
+      "name": "Test",
+      "providers": {
+        "Manganelo": { "id": "fe130182" }
+      }
+    }
+  ]
+}

@@ -1,15 +1,17 @@
 import fetch from 'node-fetch';
 
-export const HttpService: ISHttp = {
+export namespace HttpService {
 
   /**
    * @description
    * Fetches <URL> by specified <TYPE> (text|buffer)
    */
-  fetch: (url, type = 'text', signal) =>
-    url &&
+  export const get = (
+    url: string,
+    type: string = 'text',
+    signal?: AbortSignal
+  ): Promise<Buffer | string> =>
     fetch(url, { signal })
-      .then(res => res[type] && res[type]())
-      .catch(err => console.error('[ERR_fetchUrl]:', err))
-  
-};
+      .then((res: any) => res[type] && res[type]())
+      .catch(err => console.error(err))  
+}

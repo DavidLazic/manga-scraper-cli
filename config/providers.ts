@@ -1,16 +1,18 @@
-export const PROVIDERS = {
+import { TProvider } from '../src/types';
+
+export const PROVIDERS: { [key: string]: TProvider } = {
   'Mangairo': {
     src: 'https://mangairo.com',
     url: ({ id, src }) => `${src}/series-${id}`,
     chapter: {
       get: document =>
         Array
-          .from(document.querySelectorAll('.panel-read-story img'))
+          .from((<NodeListOf<HTMLImageElement>>document.querySelectorAll('.panel-read-story img')))
           .map(item => item.src)
       ,
       getAll: document =>
         Array
-          .from(document.querySelectorAll('.chapter_list > ul > li > a'))
+          .from((<NodeListOf<HTMLAnchorElement>>document.querySelectorAll('.chapter_list > ul > li > a')))
           .map(item => item.href)
       ,
       title: document =>
@@ -23,12 +25,12 @@ export const PROVIDERS = {
     chapter: {
       get: document =>
         Array
-          .from(document.querySelectorAll('#vungdoc img'))
+          .from((<NodeListOf<HTMLImageElement>>document.querySelectorAll('#vungdoc img')))
           .map(item => item.src)
       ,
       getAll: document =>
         Array
-          .from(document.querySelectorAll('.chapter-list a'))
+          .from((<NodeListOf<HTMLAnchorElement>>document.querySelectorAll('.chapter-list a')))
           .map(item => item.href)
       ,
       title: document =>
@@ -41,12 +43,12 @@ export const PROVIDERS = {
     chapter: {
       get: document =>
         Array
-          .from(document.querySelectorAll('.container-chapter-reader img'))
-          .map(item => item.src)
+        .from((<NodeListOf<HTMLImageElement>>document.querySelectorAll('.container-chapter-reader img')))
+        .map(item => item.src || item.dataset.src)
       ,
       getAll: document =>
         Array
-          .from(document.querySelectorAll('.row-content-chapter a'))
+          .from((<NodeListOf<HTMLAnchorElement>>document.querySelectorAll('.row-content-chapter a')))
           .map(item => item.href)
       ,
       title: document =>
@@ -59,12 +61,12 @@ export const PROVIDERS = {
     chapter: {
       get: document =>
         Array
-          .from(document.querySelectorAll('.entry-content .separator img'))
+          .from((<NodeListOf<HTMLImageElement>>document.querySelectorAll('.entry-content .separator img')))
           .map(item => item.src)
       ,
       getAll: document =>
         Array
-          .from(document.querySelectorAll('#Chapters_List ul li ul li a'))
+          .from((<NodeListOf<HTMLAnchorElement>>document.querySelectorAll('#Chapters_List ul li ul li a')))
           .map(item => item.href)
       ,
       title: document =>

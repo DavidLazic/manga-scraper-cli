@@ -1,26 +1,39 @@
 {
   "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
     "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationDir": "dist",
     "baseUrl": ".",
     "paths": {
       "@config/*": ["config/*"],
       "@modules": ["src/modules/index"],
       "@services": ["src/services/index"],
-      "@lib/*": ["src/lib/*"]
+      "@lib/*": ["src/lib/*"],
+      "@db/*": ["db/*"]
     },
     "types": [
       "node",
       "jsdom",
       "mkdirp-promise",
-      "node-fetch"
+      "node-fetch",
+      "figlet",
+      "clear"
     ],
-    "target": "es5",
-    "allowJs": true,
+    "noImplicitAny": true,
     "esModuleInterop": true,
     "outDir": "dist",
   },
+  "include": [
+    "./app.ts",
+    "config/**/*",
+    "src/**/*"
+  ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "bin"
   ]
 }

@@ -1,0 +1,35 @@
+{
+  "entries": [
+    {
+      "name": "Jackals",
+      "providers": {
+        "Mangairo": { "id": 1288902540 }
+      }
+    },
+    {
+      "name": "Ragnarok",
+      "providers": {
+        "Mangairo": { "id": 1288905796 }
+      }
+    },
+    {
+      "name": "Ares",
+      "providers": {
+        "Mangairo": { "id": 1288897895 },
+        "Mangakakalot": { "id": "ares" }
+      }
+    },
+    {
+      "name": "Claymore",
+      "providers": {
+        "Manganelo": { "id": "ha106878" }
+      }
+    },
+    {
+      "name": "One_Punch_Man",
+      "providers": {
+        "One-Punch": { "id": "" }
+      }
+    }
+  ]
+}
