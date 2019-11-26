@@ -14,6 +14,12 @@
       "@lib/*": ["src/lib/*"],
       "@db/*": ["db/*"]
     },
+    "lib": [
+      "es5",
+      "es2015.promise",
+      "es6",
+      "es7"
+    ],
     "types": [
       "node",
       "jsdom",

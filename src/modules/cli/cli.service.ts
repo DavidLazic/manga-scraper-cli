@@ -1,15 +1,33 @@
 import chalk from 'chalk';
-import { isAbsolute } from 'path';
+import { resolve } from 'path';
+import inquirer from 'inquirer';
 
+import { DownloadService } from '@services';
 import { PROVIDERS } from '@config/providers';
 import DB from '@db/db.json';
-import { TOptions } from '../../types';
+import { QUESTIONS } from './cli.questions';
+import { TOptions, TProvider, IScraper } from '../../types';
 
 export namespace CLIService {
 
-  export namespace list {
+  /**
+   * @description
+   * Creates scraper config
+   */
+  export const config = ({ selected, provider, outDir }: any): IScraper => ({
+    name: selected.name,
+    id: provider.id,
+    outDir,
+    ...(PROVIDERS as { [key: string]: TProvider })[provider.name]
+  });
 
-    export const providers = async (): Promise<object[]> =>
+  export namespace list {
+    
+    /**
+     * @description
+     * Returns list of supported providers' name and URLs.
+     */
+    export const providers = async (): Promise<any[]> =>
       Object
         .keys(PROVIDERS)
         .map((provider: string) => ({
@@ -17,19 +35,29 @@ export namespace CLIService {
           url: PROVIDERS[provider].src
         }));
 
-    export const entries = async ({ database }: TOptions): Promise<any> => {
-      const { entries = [] } = database && isAbsolute(database) && require(`${database}`);
+    /**
+     * @description
+     * Returns list of default entries and merged entries provided with --database flag.
+     */
+    export const entries = async ({ database }: TOptions): Promise<any[]> => {
+      const { entries = [] } = database && require(`${resolve(database)}`);
 
-      console.log('[Current Entries]: ', '\n');
-
-      [
-        ...DB.entries,
-        ...entries
-      ].forEach(entry => console.log(entry));
-    }
+      return [ ...DB.entries, ...entries ];
+    };
   }
 
-  export const download = ({ database }: any): void => {
-    const { entries = [] } = database && isAbsolute(database) && require(`${database}`);
+  /**
+   * @description
+   * Creates scraper config through dynamic questions.
+   */
+  export const download = async ({ database }: TOptions): Promise<void> => {
+    const entries = await CLIService.list.entries({ database });
+    const providers = await CLIService.list.providers();
+    
+    const { name: selected } = await inquirer.prompt(QUESTIONS.manga(entries));
+    const { type, ...answers } = await inquirer.prompt(QUESTIONS.config(selected));
+
+    const config = CLIService.config({ selected, ...answers });
+    return (<any>DownloadService)[type](config);
   }
 }

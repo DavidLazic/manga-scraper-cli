@@ -10,38 +10,52 @@ export namespace CLI {
 
   const COMMANDS = [ info, list, download ];
 
+  /**
+   * @description
+   * Initializes info command method.
+   */
   function info (program: Command): void {
     program
       .version(pkg.version)
       .description('Download hosted manga images to local file system')
-      .option('-d, --database <path>', 'custom database entries path', null);
+      .option('-d, --database <path>', 'custom database entries path', '');
   }
 
+  /**
+   * @description
+   * Initializes list command method.
+   */
   function list (program: Command): void {
     program
       .command('list <type>')
       .alias('ls')
       .description('list supported <providers|entries>')
-      .action(async (type: string) => {
-        console.log('[Supported Providers]: ', '\n');
-        (CLIService.list as any)[type].then((test: any) => console.log('test', test));
+      .action(async (type: string): Promise<void> => {
+        if ((CLIService.list as any)[type]) {
+          console.log(`[Supported ${type}]: `, '\n');
 
-            // arr.forEach(provider =>
-            //   console.log(
-            //     `${provider.name} ${chalk.grey('-->')} ${chalk.green(provider.url)}`
-            //   )
-            // );
+          const res: any[] = await (CLIService.list as any)[type]({ database: program.database });
+          res.forEach((item: any) => console.log(item));
+        }
       });
   }
 
+  /**
+   * @description
+   * Initializes download command method.
+   */
   function download (program: Command): void {
     program
       .command('download')
       .alias('dl')
       .description('download selection')
-      .action(() => CLIService.download(program));
+      .action(() => CLIService.download({ database: program.database }));
   }
 
+  /**
+   * @description
+   * Initializes all CLI command listeners methods.
+   */
   export const init = ((program: Command): any => (): void => {
     clear();
     console.log(

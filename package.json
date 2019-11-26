@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "npm run build && node ./dist/app.js",
-    "build": "rimraf dist && tsc -p ./ && npm run copy:db",
+    "build": "rimraf dist && tsc -p ./ && npm run copy:db && npm link",
     "copy:db": "copyfiles db/* bin/* dist",
     "test": "npm run build"
   },

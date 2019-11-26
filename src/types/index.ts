@@ -1,9 +1,3 @@
-export type TSDownload = {
-  name: string,
-  provider: string,
-  outDir?: string
-}
-
 export type TOptions = {
   database: string
 }

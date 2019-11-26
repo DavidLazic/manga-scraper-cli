@@ -3,7 +3,6 @@ import mkdirp from 'mkdirp-promise';
 import { promises as fsp, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 
-import { ROOT } from '@config/root';
 import { HttpService } from '@services';
 import { _lazy, _partition, _abortable } from '@lib/helpers';
 import { IScraper, IChapter, IImage } from '../../types';
@@ -16,7 +15,7 @@ export namespace MChapter {
    * Images will be saved per manga <OUT_DIR>/<MANGA_NAME>/<CHAPTER_TITLE> directory
    */
   export const dir = ({ name, outDir }: IScraper, title: string): string =>
-    join(ROOT, outDir, name, title)
+    join(process.cwd(), outDir, name, title)
 
   /**
    * @description
@@ -51,7 +50,7 @@ export namespace MChapter {
    */
   export const getLatest = async (scraper: IScraper): Promise<string[]> => {
     const all = await MChapter.getAll(scraper);
-    const downloaded = await MChapter.downloaded(join(ROOT, scraper.outDir, scraper.name));
+    const downloaded = await MChapter.downloaded(join(process.cwd(), scraper.outDir, scraper.name));
 
     return all.slice(downloaded.length);
   }

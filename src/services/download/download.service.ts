@@ -1,6 +1,6 @@
-import { MScraper, MChapter } from '@modules';
+import { MChapter } from '@modules';
 import { _lazy } from '@lib/helpers';
-import { TSDownload } from '../../types';
+import { IScraper } from '../../types';
 
 export namespace DownloadService {
 
@@ -8,8 +8,7 @@ export namespace DownloadService {
    * @description
    * Downloads all manga chapters by lazy chapter iteration.
    */
-  export const all = async (config: TSDownload): Promise<any> => {
-    const scraper = MScraper.get(config);
+  export const all = async (scraper: IScraper): Promise<any> => {
     console.log('SCRAPER', scraper);
     const chapters = await MChapter.getAll(scraper);
 
@@ -21,8 +20,7 @@ export namespace DownloadService {
    * Downloads only non-existent manga chapters
    * in <outDir> directory by lazy chapter iteration.
    */
-  export const latest = async (config: TSDownload): Promise<any> => {
-    const scraper = MScraper.get(config);
+  export const latest = async (scraper: IScraper): Promise<any> => {
     console.log('SCRAPER', scraper);
     const chapters = await MChapter.getLatest(scraper);
 
