@@ -9,14 +9,12 @@ export type TEntry = {
   }
 }
 
-export type TProvider = {
+export type IProvider = {
   src: string,
   url({ id, src }: { id?: number | string, src: string }): string,
-  chapter: {
-    get(document: Document): Array<string>,
-    getAll(document: Document): Array<string>,
-    title(document: Document): string
-  }
+  getImages(document: Document): Array<string>,
+  getChapters(document: Document): Array<string>,
+  getTitle(document: Document): string
 }
 
 export interface IChapter {
@@ -33,7 +31,7 @@ export interface IImage {
   chapter: IChapter
 }
 
-export interface IScraper extends TProvider {
+export interface IScraper extends IProvider {
   id: string | number,
   name: string,
   outDir: string

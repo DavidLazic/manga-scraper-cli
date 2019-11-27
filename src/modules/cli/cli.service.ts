@@ -1,12 +1,11 @@
-import chalk from 'chalk';
 import { resolve } from 'path';
 import inquirer from 'inquirer';
 
-import { DownloadService } from '@services';
+import { MDownload } from '@modules';
 import { PROVIDERS } from '@config/providers';
 import DB from '@db/db.json';
 import { QUESTIONS } from './cli.questions';
-import { TOptions, TProvider, IScraper } from '../../types';
+import { TOptions, IProvider, IScraper } from '../../types';
 
 export namespace CLIService {
 
@@ -18,22 +17,18 @@ export namespace CLIService {
     name: selected.name,
     id: provider.id,
     outDir,
-    ...(PROVIDERS as { [key: string]: TProvider })[provider.name]
+    ...(PROVIDERS.find(entry => entry.src === provider.name))
   });
 
   export namespace list {
     
     /**
      * @description
-     * Returns list of supported providers' name and URLs.
+     * Returns list of supported providers' URLs.
      */
-    export const providers = async (): Promise<any[]> =>
-      Object
-        .keys(PROVIDERS)
-        .map((provider: string) => ({
-          name: provider,
-          url: PROVIDERS[provider].src
-        }));
+    export const providers = async (): Promise<string[]> =>
+      PROVIDERS
+        .map((provider: IProvider) => provider.src);
 
     /**
      * @description
@@ -52,12 +47,10 @@ export namespace CLIService {
    */
   export const download = async ({ database }: TOptions): Promise<void> => {
     const entries = await CLIService.list.entries({ database });
-    const providers = await CLIService.list.providers();
     
     const { name: selected } = await inquirer.prompt(QUESTIONS.manga(entries));
     const { type, ...answers } = await inquirer.prompt(QUESTIONS.config(selected));
 
-    const config = CLIService.config({ selected, ...answers });
-    return (<any>DownloadService)[type](config);
+    return MDownload.onDownload(type, CLIService.config({ selected, ...answers }));
   }
 }

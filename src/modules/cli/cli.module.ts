@@ -8,13 +8,13 @@ import { CLIService } from './cli.service';
 
 export namespace CLI {
 
-  const COMMANDS = [ info, list, download ];
+  const COMMANDS = [ onInfo, onList, onDownload ];
 
   /**
    * @description
    * Initializes info command method.
    */
-  function info (program: Command): void {
+  function onInfo (program: Command): void {
     program
       .version(pkg.version)
       .description('Download hosted manga images to local file system')
@@ -25,16 +25,16 @@ export namespace CLI {
    * @description
    * Initializes list command method.
    */
-  function list (program: Command): void {
+  function onList (program: Command): void {
     program
       .command('list <type>')
       .alias('ls')
       .description('list supported <providers|entries>')
       .action(async (type: string): Promise<void> => {
-        if ((CLIService.list as any)[type]) {
+        if ((<any>CLIService.list)[type]) {
           console.log(`[Supported ${type}]: `, '\n');
 
-          const res: any[] = await (CLIService.list as any)[type]({ database: program.database });
+          const res: any[] = await (<any>CLIService.list)[type]({ database: program.database });
           res.forEach((item: any) => console.log(item));
         }
       });
@@ -44,7 +44,7 @@ export namespace CLI {
    * @description
    * Initializes download command method.
    */
-  function download (program: Command): void {
+  function onDownload (program: Command): void {
     program
       .command('download')
       .alias('dl')

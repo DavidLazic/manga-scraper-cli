@@ -3,7 +3,7 @@
     {
       "name": "Test",
       "providers": {
-        "Manganelo": { "id": "fe130182" }
+        "https://manganelo.net": { "id": "fe130182" }
       }
     }
   ]

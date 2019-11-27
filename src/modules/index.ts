@@ -1,7 +1,7 @@
-import { MChapter } from './chapter/chapter.module';
+import { MDownload } from './download/download.module';
 import { CLI } from './cli/cli.module';
 
 export {
-  MChapter,
+  MDownload,
   CLI
 };
