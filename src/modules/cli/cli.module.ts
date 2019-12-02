@@ -18,7 +18,7 @@ export namespace CLI {
     program
       .version(pkg.version)
       .description('Download hosted manga images to local file system')
-      .option('-d, --database <path>', 'custom database entries path', '');
+      .option('-u, --url <path>', 'custom entries <url|file> path', '');
   }
 
   /**
@@ -34,7 +34,7 @@ export namespace CLI {
         if ((<any>CLIService.list)[type]) {
           console.log(`[Supported ${type}]: `, '\n');
 
-          const res: any[] = await (<any>CLIService.list)[type]({ database: program.database });
+          const res: any[] = await (<any>CLIService.list)[type](program);
           res.forEach((item: any) => console.log(item));
         }
       });
@@ -49,7 +49,7 @@ export namespace CLI {
       .command('download')
       .alias('dl')
       .description('download selection')
-      .action(() => CLIService.download({ database: program.database }));
+      .action(() => CLIService.download({ url: program.url }));
   }
 
   /**

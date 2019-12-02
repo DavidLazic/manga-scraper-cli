@@ -1,17 +1,17 @@
 {
   "name": "@davidlazic/manga-scraper-cli",
   "version": "1.0.0",
-  "description": "CLI for downloading hosted manga images to local file system",
+  "description": "CLI for scraping hosted manga images to local file system",
   "preferGlobal": true,
   "main": "dist/app.js",
   "bin": {
     "ms": "dist/bin/app.js"
   },
   "scripts": {
-    "start": "npm run build && node ./dist/app.js",
-    "build": "rimraf dist && tsc -p ./ && npm run copy:db",
-    "copy:db": "copyfiles db/* bin/* dist",
-    "test": "npm run build && npm link"
+    "start": "npm run clean && npm run build && npm run copy && npm link",
+    "build": "tsc -p ./",
+    "clean": "rimraf dist",
+    "copy": "copyfiles db.example.json bin/* dist"
   },
   "files": [
     "dist/**/*"
@@ -26,6 +26,7 @@
     "url": "git+https://github.com/DavidLazic/manga-scraper-cli"
   },
   "keywords": [
+    "cli",
     "scraper",
     "manga"
   ],

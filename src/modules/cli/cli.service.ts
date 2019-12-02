@@ -3,9 +3,9 @@ import inquirer from 'inquirer';
 
 import { MDownload } from '@modules';
 import { PROVIDERS } from '@config/providers';
-import DB from '@db/db.json';
 import { QUESTIONS } from './cli.questions';
 import { TOptions, IProvider, IScraper } from '../../types';
+import { HttpService } from '@services';
 
 export namespace CLIService {
 
@@ -34,10 +34,14 @@ export namespace CLIService {
      * @description
      * Returns list of default entries and merged entries provided with --database flag.
      */
-    export const entries = async ({ database }: TOptions): Promise<any[]> => {
-      const { entries = [] } = database && require(`${resolve(database)}`);
+    export const entries = async ({ url }: TOptions): Promise<any[]> => {
+      const { entries = [] } = url && (
+        url.includes('http')
+          ? await HttpService.get(url, 'json')
+          : require(`${resolve(url)}`)
+      );
 
-      return [ ...DB.entries, ...entries ];
+      return [ ...entries ];
     };
   }
 
@@ -45,9 +49,9 @@ export namespace CLIService {
    * @description
    * Creates scraper config through dynamic questions.
    */
-  export const download = async ({ database }: TOptions): Promise<void> => {
-    const entries = await CLIService.list.entries({ database });
-    
+  export const download = async ({ url }: TOptions): Promise<void> => {
+    const entries = await CLIService.list.entries({ url });
+
     const { name: selected } = await inquirer.prompt(QUESTIONS.manga(entries));
     const { type, ...answers } = await inquirer.prompt(QUESTIONS.config(selected));
 

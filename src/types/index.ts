@@ -1,5 +1,5 @@
 export type TOptions = {
-  database: string
+  url?: string
 }
 
 export type TEntry = {

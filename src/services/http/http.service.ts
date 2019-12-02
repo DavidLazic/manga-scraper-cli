@@ -10,7 +10,7 @@ export namespace HttpService {
     url: string,
     type: string = 'text',
     signal?: AbortSignal
-  ): Promise<Buffer | string> =>
+  ): Promise<any> =>
     fetch(url, { signal })
       .then((res: any) => res[type] && res[type]())
       .catch(err => console.error(err))  

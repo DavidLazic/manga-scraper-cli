@@ -1,7 +1,7 @@
 {
   "entries": [
     {
-      "name": "Test",
+      "name": "Example",
       "providers": {
         "https://manganelo.net": { "id": "fe130182" }
       }

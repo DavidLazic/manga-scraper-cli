@@ -7,8 +7,7 @@ export const QUESTIONS = {
       name: 'name',
       message: 'Select manga',
       choices: entries
-        .map((entry: any) =>
-          ({
+        .map((entry: any) => entry.type ? entry : ({
             name: entry.name,
             value: entry,
             short: entry.name
