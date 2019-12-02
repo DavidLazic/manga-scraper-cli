@@ -1,9 +1,9 @@
 {
   "entries": [
     {
-      "name": "Example",
+      "name": "Jackals",
       "providers": {
-        "https://manganelo.net": { "id": "fe130182" }
+        "https://mangairo.com": { "id": 1288902540 }
       }
     }
   ]

@@ -28,7 +28,8 @@
   "keywords": [
     "cli",
     "scraper",
-    "manga"
+    "manga",
+    "web"
   ],
   "dependencies": {
     "abort-controller": "^3.0.0",
