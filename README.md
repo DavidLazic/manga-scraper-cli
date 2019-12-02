@@ -85,7 +85,7 @@ $ ms list entries -url https://raw.githubusercontent.com/DavidLazic/manga-scrape
 
 Download options selection.
 ```js
-$ ms download --url https://raw.githubusercontent.com/DavidLazic/manga-scraper-cli/master/db.test.json
+$ ms download --url https://raw.githubusercontent.com/DavidLazic/manga-scraper-cli/master/db.example.json
 ```
 
 ### Commands
