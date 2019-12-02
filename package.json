@@ -1,6 +1,6 @@
 {
   "name": "@davidlazic/manga-scraper-cli",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "CLI for scraping hosted manga images to local file system",
   "preferGlobal": true,
   "main": "dist/app.js",
