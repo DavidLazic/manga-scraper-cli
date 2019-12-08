@@ -32,7 +32,7 @@ export namespace CLIService {
 
     /**
      * @description
-     * Returns list of default entries and merged entries provided with --database flag.
+     * Returns list entries provided with --url flag.
      */
     export const entries = async ({ url }: TOptions): Promise<any[]> => {
       const { entries = [] } = url && (
