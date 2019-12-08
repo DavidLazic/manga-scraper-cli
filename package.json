@@ -17,7 +17,8 @@
     "dist/**/*"
   ],
   "author": "David Lazic",
-  "license": "ISC",
+  "license": "MIT",
+  "deprecated": false,
   "engines”": {
     "node": ">= 12.13.0"
   },

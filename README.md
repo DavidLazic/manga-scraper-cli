@@ -15,7 +15,8 @@ Written in TypeScript.
 4. [Development](#dev)\
     4.1 [Node version](#dev_version)\
     4.2 [Local build](#dev_build)
-5. [License](#license)
+5. [Improvements](#improvements)
+6. [License](#license)
 
 ## Installation
 <a name="installation"></a>
@@ -150,6 +151,11 @@ $ npm start
 This task will create **`dist`** directory and link it locally.\
 It will enable you to use the **`ms`** command as though you've installed the CLI from the `npm` registry.
 
+
+## Improvements
+<a name="improvements"></a>
+- [ ] Write provider tests
+- [ ] Add more providers
 
 ## License 
 <a name="license"></a>

@@ -63,6 +63,8 @@ export namespace CLI {
         figlet.textSync('Manga Scraper CLI', { horizontalLayout: 'full' })
       )
     );
+      
+    console.log(chalk.cyan(`v${pkg.version}\n`));
 
     COMMANDS.forEach(command => command(program));
 
