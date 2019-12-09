@@ -41,10 +41,13 @@ export const PROVIDERS: IProvider[] = [
       .from((<NodeListOf<HTMLImageElement>>document.querySelectorAll('.container-chapter-reader img')))
       .map(item => item.src || item.dataset.src)
     ,
-    getChapters: document =>
-      Array
+    getChapters: document => {
+      const canonical= (<HTMLLinkElement>document.querySelector('link[rel="canonical"]')).href;
+
+      return Array
         .from((<NodeListOf<HTMLAnchorElement>>document.querySelectorAll('.row-content-chapter a')))
-        .map(item => item.href)
+        .map(item => item.href || `${canonical}/chapter-${item.dataset.c}`);
+    }
     ,
     getTitle: document =>
       document.title.split(' - ')[0].replace(/[\s|:|.|?]/g, '_')
