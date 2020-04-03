@@ -6,7 +6,7 @@ import { HttpService } from '../src/services';
 
 const SPECS = [
   { src: 'https://mangairo.com', id: 1288896535 },
-  { src: 'https://mangakakalot.com', id: 'jzde76471556853820' },
+  { src: 'https://mangakakalot.com', id: 'to922571' },
   { src: 'https://manganelo.net', id: 'yv105973'},
   { src: 'https://one-punchman.com', id: ''}
 ];

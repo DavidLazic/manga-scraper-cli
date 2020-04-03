@@ -154,8 +154,9 @@ It will enable you to use the **`ms`** command as though you've installed the CL
 
 ## Improvements
 <a name="improvements"></a>
-- [ ] Write provider tests
+- [ x ] Write provider tests
 - [ ] Add more providers
+- [ ] Handle server redirects 
 
 ## License 
 <a name="license"></a>

@@ -25,11 +25,13 @@ export const PROVIDERS: IProvider[] = [
         .from((<NodeListOf<HTMLImageElement>>document.querySelectorAll('#vungdoc img')))
         .map(item => item.src)
     ,
-    getChapters: document =>
-      Array
-        .from((<NodeListOf<HTMLAnchorElement>>document.querySelectorAll('.chapter-list a')))
-        .map(item => item.href)
-    ,
+    getChapters: document => {
+      console.log('doc', document);
+      console.log(document.querySelectorAll('.chapter-list a'));
+      return Array
+      .from((<NodeListOf<HTMLAnchorElement>>document.querySelectorAll('.chapter-list a')))
+      .map(item => item.href);
+    },
     getTitle: document =>
       document.title.split(' | ')[0].replace(/[\s|:|.|?]/g, '_')
   },
